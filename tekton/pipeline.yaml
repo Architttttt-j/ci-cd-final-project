@@ -6,7 +6,7 @@ metadata:
     app.kubernetes.io/version: "1.0"
 spec:
   description: >-
-    OpenShift CI/CD Pipeline executing Linting -> Testing -> Building Image -> Deploying to OpenShift Cluster.
+    OpenShift CI/CD Pipeline executing: cleanup -> git-clone -> eslint -> jest -> buildah -> deploy
   workspaces:
     - name: pipeline-workspace
       description: Shared workspace for source code across pipeline tasks.
@@ -14,33 +14,55 @@ spec:
     - name: APP_NAME
       type: string
       default: "cicd-js-app"
-      description: Application deployment name.
+    - name: GIT_URL
+      type: string
+      default: "https://github.com/nivesh4087-spec/cicd-final-project-js.git"
     - name: IMAGE_NAME
       type: string
       default: "image-registry.openshift-image-registry.svc:5000/sn-labs-nivesh4087spec/cicd-js-app:latest"
-      description: Full container image URL in OpenShift internal registry.
   tasks:
-    - name: lint-code
+    - name: cleanup
       taskRef:
-        name: npm-lint
+        name: cleanup
       workspaces:
         - name: source
           workspace: pipeline-workspace
 
-    - name: test-code
+    - name: git-clone
+      taskRef:
+        name: git-clone
+      runAfter:
+        - cleanup
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+      workspaces:
+        - name: output
+          workspace: pipeline-workspace
+
+    - name: eslint
+      taskRef:
+        name: npm-lint
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: jest
       taskRef:
         name: npm-test
       runAfter:
-        - lint-code
+        - eslint
       workspaces:
         - name: source
           workspace: pipeline-workspace
 
-    - name: build-image
+    - name: buildah
       taskRef:
         name: build-image
       runAfter:
-        - test-code
+        - jest
       params:
         - name: IMAGE
           value: $(params.IMAGE_NAME)
@@ -48,11 +70,11 @@ spec:
         - name: source
           workspace: pipeline-workspace
 
-    - name: deploy-app
+    - name: deploy
       taskRef:
         name: openshift-deploy
       runAfter:
-        - build-image
+        - buildah
       params:
         - name: DEPLOYMENT_NAME
           value: $(params.APP_NAME)

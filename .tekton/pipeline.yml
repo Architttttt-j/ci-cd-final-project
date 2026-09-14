@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cd-pipeline
+  labels:
+    app.kubernetes.io/version: "1.0"
+spec:
+  description: >-
+    OpenShift CI/CD Pipeline executing: cleanup -> git-clone -> eslint -> jest -> buildah -> deploy
+  workspaces:
+    - name: pipeline-workspace
+      description: Shared workspace for source code across pipeline tasks.
+  params:
+    - name: APP_NAME
+      type: string
+      default: "cicd-js-app"
+    - name: GIT_URL
+      type: string
+      default: "https://github.com/nivesh4087-spec/cicd-final-project-js.git"
+    - name: IMAGE_NAME
+      type: string
+      default: "image-registry.openshift-image-registry.svc:5000/sn-labs-nivesh4087spec/cicd-js-app:latest"
+  tasks:
+    - name: cleanup
+      taskRef:
+        name: cleanup
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: git-clone
+      taskRef:
+        name: git-clone
+      runAfter:
+        - cleanup
+      params:
+        - name: url
+          value: $(params.GIT_URL)
+      workspaces:
+        - name: output
+          workspace: pipeline-workspace
+
+    - name: eslint
+      taskRef:
+        name: npm-lint
+      runAfter:
+        - git-clone
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: jest
+      taskRef:
+        name: npm-test
+      runAfter:
+        - eslint
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: buildah
+      taskRef:
+        name: build-image
+      runAfter:
+        - jest
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE_NAME)
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: deploy
+      taskRef:
+        name: openshift-deploy
+      runAfter:
+        - buildah
+      params:
+        - name: DEPLOYMENT_NAME
+          value: $(params.APP_NAME)
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace

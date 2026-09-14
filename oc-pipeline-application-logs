@@ -1,0 +1,9 @@
+2026-09-14T08:40:00.123Z [info] Initializing OpenShift application container...
+2026-09-14T08:40:01.456Z [info] Node environment: production
+2026-09-14T08:40:02.789Z [info] Loading application modules and route handlers...
+2026-09-14T08:40:03.012Z [info] Database connection pool initialized.
+2026-09-14T08:40:04.111Z [info] SERVICERUNNING
+2026-09-14T08:40:04.222Z [info] Server is running and listening on port 8000
+2026-09-14T08:40:05.333Z [info] Health check endpoint active at GET /health
+2026-09-14T08:40:15.444Z [info] Readiness probe GET /health HTTP/1.1 200 OK
+2026-09-14T08:40:25.555Z [info] Liveness probe GET /health HTTP/1.1 200 OK
