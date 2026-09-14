@@ -1,0 +1,18 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: cd-pipeline-run-
+  labels:
+    tekton.dev/pipeline: cd-pipeline
+spec:
+  pipelineRef:
+    name: cd-pipeline
+  params:
+    - name: APP_NAME
+      value: "cicd-js-app"
+    - name: IMAGE_NAME
+      value: "image-registry.openshift-image-registry.svc:5000/sn-labs-nivesh4087spec/cicd-js-app:latest"
+  workspaces:
+    - name: pipeline-workspace
+      persistentVolumeClaim:
+        claimName: pipelined-pvc

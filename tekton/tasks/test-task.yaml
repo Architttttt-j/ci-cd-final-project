@@ -1,0 +1,25 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: npm-test
+  labels:
+    app.kubernetes.io/version: "1.0"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: test
+spec:
+  description: >-
+    This task executes Jest unit tests for Node.js / JavaScript applications.
+  workspaces:
+    - name: source
+      description: The workspace containing application source code.
+  steps:
+    - name: test
+      image: node:18-alpine
+      workingDir: $(workspaces.source.path)
+      script: |
+        #!/bin/sh
+        echo "Installing dependencies..."
+        npm install
+        echo "Running Jest Unit Tests..."
+        npm test

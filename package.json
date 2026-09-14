@@ -1,0 +1,30 @@
+{
+  "name": "cicd-final-project-js",
+  "version": "1.0.0",
+  "description": "Continuous Integration and Continuous Delivery (CI/CD) Final Project (Option B: JavaScript)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "jest",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "cicd",
+    "javascript",
+    "express",
+    "tekton",
+    "openshift",
+    "github-actions"
+  ],
+  "author": "nivesh4087-spec",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2"
+  },
+  "devDependencies": {
+    "browserslist": "^4.28.9",
+    "eslint": "^8.57.0",
+    "jest": "^29.7.0",
+    "supertest": "^6.3.4"
+  }
+}

@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: build-image
+  labels:
+    app.kubernetes.io/version: "1.0"
+  annotations:
+    tekton.dev/pipelines.minVersion: "0.12.1"
+    tekton.dev/tags: build
+spec:
+  description: >-
+    This task builds an OCI container image using Buildah and pushes it to an image registry.
+  params:
+    - name: IMAGE
+      type: string
+      description: Target container image location.
+    - name: DOCKERFILE
+      type: string
+      default: "./Dockerfile"
+      description: Path to Dockerfile.
+    - name: CONTEXT
+      type: string
+      default: "."
+      description: Path to build context directory.
+  workspaces:
+    - name: source
+      description: The workspace containing source code and Dockerfile.
+  steps:
+    - name: build-and-push
+      image: quay.io/buildah/stable:v1.23.3
+      workingDir: $(workspaces.source.path)
+      securityContext:
+        privileged: true
+      script: |
+        #!/bin/sh
+        echo "Building Container Image: $(params.IMAGE)"
+        buildah bud --tls-verify=false -f $(params.DOCKERFILE) -t $(params.IMAGE) $(params.CONTEXT)
+        echo "Pushing Container Image: $(params.IMAGE)"
+        buildah push --tls-verify=false $(params.IMAGE) docker://$(params.IMAGE)

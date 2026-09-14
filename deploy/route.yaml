@@ -1,0 +1,18 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cicd-js-app
+  labels:
+    app: cicd-js-app
+    app.kubernetes.io/component: cicd-js-app
+    app.kubernetes.io/instance: cicd-js-app
+    app.kubernetes.io/name: cicd-js-app
+    app.kubernetes.io/part-of: cicd-js-app-app
+spec:
+  to:
+    kind: Service
+    name: cicd-js-app
+    weight: 100
+  port:
+    targetPort: 8080-tcp
+  wildcardPolicy: None

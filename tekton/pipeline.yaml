@@ -1,0 +1,61 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: cd-pipeline
+  labels:
+    app.kubernetes.io/version: "1.0"
+spec:
+  description: >-
+    OpenShift CI/CD Pipeline executing Linting -> Testing -> Building Image -> Deploying to OpenShift Cluster.
+  workspaces:
+    - name: pipeline-workspace
+      description: Shared workspace for source code across pipeline tasks.
+  params:
+    - name: APP_NAME
+      type: string
+      default: "cicd-js-app"
+      description: Application deployment name.
+    - name: IMAGE_NAME
+      type: string
+      default: "image-registry.openshift-image-registry.svc:5000/sn-labs-nivesh4087spec/cicd-js-app:latest"
+      description: Full container image URL in OpenShift internal registry.
+  tasks:
+    - name: lint-code
+      taskRef:
+        name: npm-lint
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: test-code
+      taskRef:
+        name: npm-test
+      runAfter:
+        - lint-code
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: build-image
+      taskRef:
+        name: build-image
+      runAfter:
+        - test-code
+      params:
+        - name: IMAGE
+          value: $(params.IMAGE_NAME)
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace
+
+    - name: deploy-app
+      taskRef:
+        name: openshift-deploy
+      runAfter:
+        - build-image
+      params:
+        - name: DEPLOYMENT_NAME
+          value: $(params.APP_NAME)
+      workspaces:
+        - name: source
+          workspace: pipeline-workspace

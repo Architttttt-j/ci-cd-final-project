@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cicd-js-app
+  labels:
+    app: cicd-js-app
+    app.kubernetes.io/component: cicd-js-app
+    app.kubernetes.io/instance: cicd-js-app
+    app.kubernetes.io/name: cicd-js-app
+    app.kubernetes.io/part-of: cicd-js-app-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cicd-js-app
+  template:
+    metadata:
+      labels:
+        app: cicd-js-app
+    spec:
+      containers:
+        - name: cicd-js-app
+          image: image-registry.openshift-image-registry.svc:5000/sn-labs-nivesh4087spec/cicd-js-app:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: PORT
+              value: "8080"
+          resources:
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 5
