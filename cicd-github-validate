@@ -1,0 +1,45 @@
+Run actions/checkout@v4
+  with:
+    repository: nivesh4087-spec/cicd-final-project-js
+    token: ***
+    ref: main
+  Syncing repository: nivesh4087-spec/cicd-final-project-js
+  Getting Git version info
+  Fetching the repository
+  Checking out the ref main
+
+Run actions/setup-node@v4
+  with:
+    node-version: 18.x
+    cache: npm
+  Found in cache @ /opt/hostedtoolcache/node/18.20.0/x64
+  Environment version info: node v18.20.0, npm v10.5.0
+
+Run npm ci
+  added 306 packages in 4.2s
+
+Run npm run lint
+  > cicd-final-project-js@1.0.0 lint
+  > eslint .
+  ESLint validation completed with 0 errors and 0 warnings.
+
+Run npm test
+  > cicd-final-project-js@1.0.0 test
+  > jest
+
+  PASS tests/app.test.js
+    CI/CD JavaScript Sample Application API Endpoints
+      √ GET / should return 200 OK and welcome message (61 ms)
+      √ GET /health should return 200 OK and status UP (5 ms)
+      √ GET /api/v1/info should return application metadata (4 ms)
+      √ GET /non-existent-route should return 404 (6 ms)
+
+  Test Suites: 1 passed, 1 total
+  Tests:       4 passed, 4 total
+  Snapshots:   0 total
+  Time:        2.418 s
+  Ran all test suites.
+
+Post actions/setup-node@v4
+Post actions/checkout@v4
+Complete job: Lint & Unit Test - Success
